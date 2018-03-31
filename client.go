@@ -114,7 +114,7 @@ func Dial(
 		config:                 clientConfig,
 		version:                version,
 		versionNegotiationChan: make(chan struct{}),
-		logger:                 utils.DefaultLogger,
+		logger:                 utils.DefaultLogger.WithPrefix("client"),
 	}
 
 	c.logger.Infof("Starting new connection to %s (%s -> %s), source connection ID %s, destination connection ID %s, version %s", hostname, c.conn.LocalAddr(), c.conn.RemoteAddr(), c.srcConnID, c.destConnID, c.version)
