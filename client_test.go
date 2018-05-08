@@ -146,6 +146,7 @@ var _ = Describe("Client", func() {
 		})
 
 		It("returns after the handshake is complete", func() {
+			run := make(chan struct{})
 			newClientSession = func(
 				_ connection,
 				runner sessionRunner,
@@ -159,7 +160,7 @@ var _ = Describe("Client", func() {
 				_ utils.Logger,
 			) (packetHandler, error) {
 				sess := NewMockPacketHandler(mockCtrl)
-				sess.EXPECT().run()
+				sess.EXPECT().run().Do(func() { close(run) })
 				sess.EXPECT().handlePacket(gomock.Any())
 				runner.onHandshakeComplete(sess)
 				return sess, nil
@@ -168,6 +169,7 @@ var _ = Describe("Client", func() {
 			s, err := Dial(packetConn, addr, "quic.clemente.io:1337", nil, nil)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(s).ToNot(BeNil())
+			Eventually(run).Should(BeClosed())
 		})
 
 		It("returns an error that occurs while waiting for the connection to become secure", func() {
